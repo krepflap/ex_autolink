@@ -1,11 +1,11 @@
 # ExAutolink
 
-**TODO: Add description**
+Simple conversion of http(s) links in text to html hyperlinks.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_autolink` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `ex_autolink` to your list of
+dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -15,7 +15,12 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ex_autolink](https://hexdocs.pm/ex_autolink).
+## Features
 
+* Convert http:// and https:// links to html hyperlinks (`<a>` tags)
+* Pass in any extra custom attributes you want
+* Respects punctuation in text so links don't break
+
+## License
+
+MIT
