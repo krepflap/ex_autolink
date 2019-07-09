@@ -6,11 +6,14 @@ defmodule ExAutolink do
   It doesn't depend on Phoenix.HTML, but can be used in conjuction with Phoenix.
   """
 
-  @doc """
+  @doc ~S"""
   This method is used for parsing strings or text blocks. We convert all links
   starting with http:// or https:// to HTML links.
 
   ## Examples
+
+      iex> ExAutolink.link("https://elixir-lang.org")
+      "<a href=\"https://elixir-lang.org\">https://elixir-lang.org</a>"
 
       iex> ExAutolink.link("Go here: https://elixir-lang.org/.")
       "Go here: <a href=\"https://elixir-lang.org/\">https://elixir-lang.org/</a>."
@@ -26,9 +29,9 @@ defmodule ExAutolink do
     Regex.replace(~r{(https?://)([^\s\<]+)}, text, parse.("\\1", "\\2"))
   end
 
-  defp reverse(binary) do
-    binary
-    |> :binary.decode_unsigned(:little)
-    |> :binary.encode_unsigned(:big)
-  end
+  # defp reverse(binary) do
+  #   binary
+  #   |> :binary.decode_unsigned(:little)
+  #   |> :binary.encode_unsigned(:big)
+  # end
 end
