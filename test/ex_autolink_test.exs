@@ -14,7 +14,7 @@ defmodule ExAutolinkTest do
     "https://www.google.be/?param=1&param=2",
     "https://www.twitch.tv/directory/game/Just%20Chatting",
     "http://insecure.org/",
-    "https://eff.org/?",
+    "https://eff.org/",
   ]
 
   @brackets [
@@ -24,6 +24,10 @@ defmodule ExAutolinkTest do
   ]
 
   describe "simple url conversions" do
+    test "should work with empty string" do
+      assert "" == ExAutolink.link("")
+    end
+
     test "should work without path or trailing slash" do
       Enum.map(@simple, &assert_link/1)
     end
