@@ -6,7 +6,7 @@ defmodule ExAutolinkTest do
     "https://www.yahoo.com",
     "https://www.google.be",
     "https://whatever.xyz",
-    "http://insecure.org",
+    "http://insecure.org"
   ]
 
   @arguments [
@@ -14,13 +14,13 @@ defmodule ExAutolinkTest do
     "https://www.google.be/?param=1&param=2",
     "https://www.twitch.tv/directory/game/Just%20Chatting",
     "http://insecure.org/",
-    "https://eff.org/",
+    "https://eff.org/"
   ]
 
   @brackets [
     "https://en.wikipedia.org/wiki/Sprite_(computer_graphics)",
     "https://en.wikipedia.org/wiki/Sprite_[computer_graphics]",
-    "https://en.wikipedia.org/wiki/Sprite_{computer_graphics}",
+    "https://en.wikipedia.org/wiki/Sprite_{computer_graphics}"
   ]
 
   describe "simple url conversions" do
@@ -44,28 +44,36 @@ defmodule ExAutolinkTest do
   describe "url conversions within text" do
     test "should work on urls with path or trailing slash" do
       Enum.map(@simple ++ @arguments ++ @brackets, fn x ->
-        assert "Check out #{urlify x} !" == ExAutolink.link("Check out #{x} !")
+        assert "Check out #{urlify(x)} !" == ExAutolink.link("Check out #{x} !")
       end)
     end
 
     test "should also work with trailing punctuation" do
       Enum.map(@simple ++ @arguments ++ @brackets, fn x ->
-        assert "Check out #{urlify x}." == ExAutolink.link("Check out #{x}.")
-        assert "Check out #{urlify x}!" == ExAutolink.link("Check out #{x}!")
-        assert "Check out #{urlify x}, ..." == ExAutolink.link("Check out #{x}, ...")
+        assert "Check out #{urlify(x)}." == ExAutolink.link("Check out #{x}.")
+        assert "Check out #{urlify(x)}!" == ExAutolink.link("Check out #{x}!")
+        assert "Check out #{urlify(x)}, ..." == ExAutolink.link("Check out #{x}, ...")
       end)
     end
 
     test "should work with brackets" do
       Enum.map(@simple ++ @arguments ++ @brackets, fn x ->
-        assert "Check out (#{urlify x})" == ExAutolink.link("Check out (#{x})")
-        assert "(Check out #{urlify x})" == ExAutolink.link("(Check out #{x})")
-        assert "Check out [#{urlify x}]" == ExAutolink.link("Check out [#{x}]")
-        assert "Check out {#{urlify x}}" == ExAutolink.link("Check out {#{x}}")
+        assert "Check out (#{urlify(x)})" == ExAutolink.link("Check out (#{x})")
+        assert "(Check out #{urlify(x)})" == ExAutolink.link("(Check out #{x})")
+        assert "Check out [#{urlify(x)}]" == ExAutolink.link("Check out [#{x}]")
+        assert "Check out {#{urlify(x)}}" == ExAutolink.link("Check out {#{x}}")
       end)
     end
   end
 
+  describe "multiple urls in text" do
+    test "should work as expected" do
+      expected = ~s(check out #{urlify("https://www.yahoo.com")}, or #{urlify("https://bing.com")}!)
+      actual = ExAutolink.link("check out https://www.yahoo.com, or https://bing.com!")
+      assert expected == actual
+    end
+  end
+
   defp urlify(link), do: ~s(<a href="#{link}">#{link}</a>)
-  defp assert_link(link), do: assert urlify(link) == ExAutolink.link(link)
+  defp assert_link(link), do: assert(urlify(link) == ExAutolink.link(link))
 end
