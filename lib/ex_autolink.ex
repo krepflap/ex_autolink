@@ -20,22 +20,25 @@ defmodule ExAutolink do
 
   """
   def link(""), do: ""
+
   def link(text) do
-    Regex.replace(~r{(https?://[^\s\<]+)}, text, fn url ->
-      {:ok, url_part, punctuation} = url |> reverse() |> parse_punctuation()
+    Regex.replace(~r{(https?://[^\s\<]+)}, text, fn x ->
+      {:ok, url_part, punctuation} = x |> reverse() |> parse_punctuation()
 
       ~s(<a href="#{url_part}">#{url_part}</a>#{punctuation})
     end)
   end
 
-  defp parse_punctuation(<<last_char :: utf8>> <> reversed, punctuation \\ "") do
-    case <<last_char>> =~ ~r/^[^\p{L}\p{N}\/-=&]$/ do
-      true -> parse_punctuation(reversed, punctuation <> <<last_char>>)
-      _ -> {:ok, reverse(<<last_char :: utf8>> <> reversed), reverse(punctuation)}
+  defp parse_punctuation(<<last_char::utf8>> <> reversed, punctuation \\ "") do
+    if <<last_char>> =~ ~r/^[^\p{L}\p{N}\/-=&]$/ do
+      parse_punctuation(reversed, punctuation <> <<last_char>>)
+    else
+      {:ok, reverse(<<last_char::utf8>> <> reversed), reverse(punctuation)}
     end
   end
 
   defp reverse(""), do: ""
+
   defp reverse(binary) do
     binary
     |> :binary.decode_unsigned(:little)
