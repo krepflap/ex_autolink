@@ -22,18 +22,18 @@ defmodule ExAutolink do
   def link(""), do: ""
 
   def link(text) do
-    Regex.replace(~r{(https?://[^\s\<]+)}, text, fn x ->
+    Regex.replace(~r{(https?://[^\s]+)}, text, fn x ->
       {:ok, url_part, punctuation} = x |> reverse() |> parse_punctuation()
 
       ~s(<a href="#{url_part}">#{url_part}</a>#{punctuation})
     end)
   end
 
-  defp parse_punctuation(<<last_char::utf8>> <> reversed, punctuation \\ "") do
+  defp parse_punctuation(<<last_char, reversed :: binary>>, punctuation \\ "") do
     if <<last_char>> =~ ~r/^[^\p{L}\p{N}\/-=&]$/ do
       parse_punctuation(reversed, punctuation <> <<last_char>>)
     else
-      {:ok, reverse(<<last_char::utf8>> <> reversed), reverse(punctuation)}
+      {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
     end
   end
 
