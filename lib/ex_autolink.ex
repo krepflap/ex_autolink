@@ -29,11 +29,30 @@ defmodule ExAutolink do
     end)
   end
 
-  defp parse_punctuation(<<last_char, reversed :: binary>>, punctuation \\ "") do
+  defp parse_punctuation(reversed, punctuation \\ <<>>)
+
+  defp parse_punctuation(<<?), reversed::binary>>, punctuation) do
+    case find_opening(reversed, :bracket) do
+      {:ok} -> {:ok, reverse(")" <> reversed), reverse(punctuation)}
+      {:error} -> parse_punctuation(reversed, punctuation <> ")")
+    end
+  end
+
+  defp parse_punctuation(<<last_char, reversed::binary>>, punctuation) do
     if <<last_char>> =~ ~r/^[^\p{L}\p{N}\/-=&]$/ do
       parse_punctuation(reversed, punctuation <> <<last_char>>)
     else
       {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
+    end
+  end
+
+  defp find_opening(<<>>, :bracket), do: {:error}
+
+  defp find_opening(<<last_char, reversed::binary>>, :bracket) do
+    case last_char do
+      ?( -> {:ok}
+      ?) -> {:error}
+      _ -> find_opening(reversed, :bracket)
     end
   end
 
