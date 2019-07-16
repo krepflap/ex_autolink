@@ -31,8 +31,15 @@ defmodule ExAutolink do
     end)
   end
 
+  # parse_punctuation/2 is used to handle punctuation by recursively scanning
+  # the string in reversed order. It is used to split punctuation from the
+  # actual url (trailing full stop, question marks, etc. i.e. anything not
+  # part of the url itself).
   defp parse_punctuation(reversed, punctuation \\ <<>>)
 
+  # This matches cases when punctuation contains a closing bracket.
+  # We then use find_opening/2 to check if there is a matching opening bracket
+  # earlier in the string.
   defp parse_punctuation(<<last_char, reversed::binary>>, punctuation)
        when last_char in [?), ?], ?}] do
     case find_opening(reversed, last_char) do
@@ -43,6 +50,10 @@ defmodule ExAutolink do
 
   defp parse_punctuation(<<last_char, reversed::binary>>, punctuation) do
     if <<last_char>> =~ ~r/^[^\p{L}\p{N}\/-=&]$/ do
+      # The regex is used to match on punctuation characters.
+      #
+      # Anything that is NOT a letter, number, forward slash, dash, equal sign,
+      # or ampersand, is matched. We thus assume it is punctuation.
       parse_punctuation(reversed, punctuation <> <<last_char>>)
     else
       {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
@@ -52,8 +63,11 @@ defmodule ExAutolink do
   defp find_opening(<<>>, _closing), do: {:not_found}
 
   defp find_opening(<<last_char, reversed::binary>>, closing) do
+    # Get the corresponding opening bracket from the map defined above.
     opening = Map.get(@brackets, closing)
 
+    # Look for the first encountered opening bracket, without stumbling upon
+    # another closing bracket.
     case last_char do
       ^opening -> {:found}
       ^closing -> {:not_found}
@@ -64,6 +78,8 @@ defmodule ExAutolink do
   defp reverse(<<>>), do: ""
 
   defp reverse(binary) do
+    # This seems to be an efficient way to reverse a string.
+    # https://gist.github.com/evadne/33805e13f1d84eb2e32f0d1e1a376899
     binary
     |> :binary.decode_unsigned(:little)
     |> :binary.encode_unsigned(:big)
