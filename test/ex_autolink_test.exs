@@ -28,36 +28,86 @@ defmodule ExAutolinkTest do
       assert "" == ExAutolink.link("")
     end
 
-    test "should work without path or trailing slash" do
+    test "should work on urls" do
       Enum.map(@simple, &assert_link/1)
     end
 
-    test "should work with path or arguments" do
+    test "should work on urls with trailing path or arguments" do
       Enum.map(@arguments, &assert_link/1)
     end
 
-    test "should also work when brackets are in the url" do
+    test "should work on urls with brackets" do
       Enum.map(@brackets, &assert_link/1)
     end
   end
 
-  describe "url conversions within text" do
-    test "should work on urls with path or trailing slash" do
-      Enum.map(@simple ++ @arguments ++ @brackets, fn x ->
+  describe "conversions of url within simple text" do
+    test "should work on urls" do
+      Enum.map(@simple, fn x ->
         assert "Check out #{urlify(x)} !" == ExAutolink.link("Check out #{x} !")
       end)
     end
 
-    test "should also work with trailing punctuation" do
-      Enum.map(@simple ++ @arguments ++ @brackets, fn x ->
+    test "should work on urls with trailing path or arguments" do
+      Enum.map(@arguments, fn x ->
+        assert "Check out #{urlify(x)} !" == ExAutolink.link("Check out #{x} !")
+      end)
+    end
+
+    test "should work on urls with brackets" do
+      Enum.map(@brackets, fn x ->
+        assert "Check out #{urlify(x)} !" == ExAutolink.link("Check out #{x} !")
+      end)
+    end
+  end
+
+  describe "conversions of url with trailing punctuation" do
+    test "should work on urls" do
+      Enum.map(@simple, fn x ->
         assert "Check out #{urlify(x)}." == ExAutolink.link("Check out #{x}.")
         assert "Check out #{urlify(x)}!" == ExAutolink.link("Check out #{x}!")
         assert "Check out #{urlify(x)}, ..." == ExAutolink.link("Check out #{x}, ...")
       end)
     end
 
-    test "should work with brackets" do
-      Enum.map(@simple ++ @arguments ++ @brackets, fn x ->
+    test "should work on urls with trailing path or arguments" do
+      Enum.map(@arguments, fn x ->
+        assert "Check out #{urlify(x)}." == ExAutolink.link("Check out #{x}.")
+        assert "Check out #{urlify(x)}!" == ExAutolink.link("Check out #{x}!")
+        assert "Check out #{urlify(x)}, ..." == ExAutolink.link("Check out #{x}, ...")
+      end)
+    end
+
+    test "should work on urls with brackets" do
+      Enum.map(@brackets, fn x ->
+        assert "Check out #{urlify(x)}." == ExAutolink.link("Check out #{x}.")
+        assert "Check out #{urlify(x)}!" == ExAutolink.link("Check out #{x}!")
+        assert "Check out #{urlify(x)}, ..." == ExAutolink.link("Check out #{x}, ...")
+      end)
+    end
+  end
+
+  describe "conversions of url in text surrounded by brackets" do
+    test "should work on urls" do
+      Enum.map(@simple, fn x ->
+        assert "Check out (#{urlify(x)})" == ExAutolink.link("Check out (#{x})")
+        assert "(Check out #{urlify(x)})" == ExAutolink.link("(Check out #{x})")
+        assert "Check out [#{urlify(x)}]" == ExAutolink.link("Check out [#{x}]")
+        assert "Check out {#{urlify(x)}}" == ExAutolink.link("Check out {#{x}}")
+      end)
+    end
+
+    test "should work on urls with trailing path or arguments" do
+      Enum.map(@arguments, fn x ->
+        assert "Check out (#{urlify(x)})" == ExAutolink.link("Check out (#{x})")
+        assert "(Check out #{urlify(x)})" == ExAutolink.link("(Check out #{x})")
+        assert "Check out [#{urlify(x)}]" == ExAutolink.link("Check out [#{x}]")
+        assert "Check out {#{urlify(x)}}" == ExAutolink.link("Check out {#{x}}")
+      end)
+    end
+
+    test "should work on urls with brackets" do
+      Enum.map(@brackets, fn x ->
         assert "Check out (#{urlify(x)})" == ExAutolink.link("Check out (#{x})")
         assert "(Check out #{urlify(x)})" == ExAutolink.link("(Check out #{x})")
         assert "Check out [#{urlify(x)}]" == ExAutolink.link("Check out [#{x}]")
