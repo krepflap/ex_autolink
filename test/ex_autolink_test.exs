@@ -1,5 +1,5 @@
 defmodule ExAutolinkTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest ExAutolink
 
   @simple [
