@@ -118,7 +118,9 @@ defmodule ExAutolinkTest do
 
   describe "multiple urls in text" do
     test "should work as expected" do
-      expected = ~s(check out #{urlify("https://www.yahoo.com")}, or #{urlify("https://bing.com")}!)
+      expected =
+        ~s(check out #{urlify("https://www.yahoo.com")}, or #{urlify("https://bing.com")}!)
+
       actual = ExAutolink.link("check out https://www.yahoo.com, or https://bing.com!")
       assert actual == expected
     end
