@@ -38,15 +38,14 @@ defmodule ExAutolink do
   defp parse_punctuation(reversed, punctuation \\ <<>>)
 
   # This matches cases when punctuation contains a closing bracket.
-  # We then use find_opening/2 to check if there is a matching opening bracket
-  # earlier in the string.
-  defp parse_punctuation(<<last_char, reversed::binary>>, punctuation)
-       when last_char in [?), ?], ?}] do
-    case find_opening(reversed, last_char) do
-      {:found} -> {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
-      {:not_found} -> parse_punctuation(reversed, punctuation <> <<last_char>>)
-    end
-  end
+  defp parse_punctuation(<<?), reversed::binary>>, punctuation),
+    do: parse_brackets(")" <> reversed, punctuation)
+
+  defp parse_punctuation(<<?], reversed::binary>>, punctuation),
+    do: parse_brackets("]" <> reversed, punctuation)
+
+  defp parse_punctuation(<<?}, reversed::binary>>, punctuation),
+    do: parse_brackets("}" <> reversed, punctuation)
 
   defp parse_punctuation(<<last_char, reversed::binary>>, punctuation) do
     if <<last_char>> =~ ~r/^[^\p{L}\p{N}\/-=&]$/ do
@@ -57,6 +56,15 @@ defmodule ExAutolink do
       parse_punctuation(reversed, punctuation <> <<last_char>>)
     else
       {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
+    end
+  end
+
+  defp parse_brackets(<<last_char, reversed::binary>>, punctuation) do
+    # We use find_opening/2 to check if there is a matching opening bracket
+    # earlier in the string.
+    case find_opening(reversed, last_char) do
+      {:found} -> {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
+      {:not_found} -> parse_punctuation(reversed, punctuation <> <<last_char>>)
     end
   end
 
