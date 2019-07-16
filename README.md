@@ -9,6 +9,12 @@ Basic conversion of http(s) links in text to html hyperlinks.
 * Pass in any extra custom attributes you want
 * Respects punctuation in text so links don't break
 
+Anti-features:
+
+* Doesn't sanitize HTML in your text input. See
+  [html_sanitize_ex](https://github.com/rrrene/html_sanitize_ex)
+  if you don't control the input
+
 ## Installation
 
 The package can be installed by adding `ex_autolink` to your list of
