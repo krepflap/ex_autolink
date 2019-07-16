@@ -16,7 +16,7 @@ dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_autolink, "~> 0.1.0"}
+    {:ex_autolink, "~> 0.2.0"}
   ]
 end
 ```
@@ -29,6 +29,12 @@ end
 
   iex> ExAutolink.link("Go here: https://elixir-lang.org/.")
   "Go here: <a href=\"https://elixir-lang.org/\">https://elixir-lang.org/</a>."
+
+  iex> ExAutolink.link("https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)")
+  "<a href=\"https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)\">https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)</a>"
+
+  iex> ExAutolink.link("https://elixir-lang.org", args: %{class: "myclass active", rel: "nofollow noreferrer"})
+  "<a href=\"https://elixir-lang.org\" class=\"myclass active\" rel=\"nofollow noreferrer\">https://elixir-lang.org</a>"
 ```
 
 ## License

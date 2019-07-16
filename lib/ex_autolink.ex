@@ -21,17 +21,23 @@ defmodule ExAutolink do
       iex> ExAutolink.link("https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)")
       "<a href=\"https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)\">https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)</a>"
 
-  """
-  def link(""), do: ""
+      iex> ExAutolink.link("https://elixir-lang.org!", args: %{class: "myclass active", rel: "nofollow noreferrer"})
+      "<a href=\"https://elixir-lang.org\" class=\"myclass active\" rel=\"nofollow noreferrer\">https://elixir-lang.org</a>!"
 
-  def link(text) do
+  """
+  def link(text, options \\ [])
+  def link("", _options), do: ""
+  def link(text, []), do: build_link(text)
+  def link(text, args: args), do: build_link(text, build_arguments(args))
+
+  defp build_link(text, extra \\ <<>>) do
     Regex.replace(~r{(https?://[^\s]+)}, text, fn url ->
       {:ok, url_part, punctuation} =
         url
         |> reverse()
         |> parse_punctuation()
 
-      ~s(<a href="#{url_part}">#{url_part}</a>#{punctuation})
+      ~s(<a href="#{url_part}"#{extra}>#{url_part}</a>#{punctuation})
     end)
   end
 
@@ -82,6 +88,10 @@ defmodule ExAutolink do
       ^closing -> {:not_found}
       _ -> find_opening(reversed, opening, closing)
     end
+  end
+
+  defp build_arguments(args) when is_map(args) do
+    for {k, v} <- args, into: "", do: ~s( #{k}="#{v}")
   end
 
   defp reverse(binary, result \\ <<>>)

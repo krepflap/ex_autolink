@@ -158,6 +158,14 @@ defmodule ExAutolinkTest do
     end
   end
 
+  describe "passing extra arguments" do
+    test "should work with one argument" do
+      url = "https://www.yahoo.co.uk/"
+      expected = ~s(<a href="#{url}" class="myclass">#{url}</a>)
+      assert ExAutolink.link(url, args: %{class: "myclass"}) == expected
+    end
+  end
+
   defp urlify(link), do: ~s(<a href="#{link}">#{link}</a>)
   defp assert_link(link), do: assert(ExAutolink.link(link) == urlify(link))
 end
