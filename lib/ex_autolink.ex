@@ -6,8 +6,6 @@ defmodule ExAutolink do
   It doesn't depend on Phoenix.HTML, but can be used in conjuction with Phoenix.
   """
 
-  @brackets %{?) => ?(, ?] => ?[, ?} => ?{}
-
   @doc ~S"""
   This method is used for parsing strings or text blocks. We convert all links
   starting with http:// or https:// to HTML links.
@@ -37,15 +35,15 @@ defmodule ExAutolink do
   # part of the url itself).
   defp parse_punctuation(reversed, punctuation \\ <<>>)
 
-  # This matches cases when punctuation contains a closing bracket.
+  # This matches cases when punctuation contains any kind of closing bracket.
   defp parse_punctuation(<<?), reversed::binary>>, punctuation),
-    do: parse_brackets(")" <> reversed, punctuation)
+    do: parse_brackets(reversed, punctuation, ?(, ?))
 
   defp parse_punctuation(<<?], reversed::binary>>, punctuation),
-    do: parse_brackets("]" <> reversed, punctuation)
+    do: parse_brackets(reversed, punctuation, ?[, ?])
 
   defp parse_punctuation(<<?}, reversed::binary>>, punctuation),
-    do: parse_brackets("}" <> reversed, punctuation)
+    do: parse_brackets(reversed, punctuation, ?{, ?})
 
   defp parse_punctuation(<<last_char, reversed::binary>>, punctuation) do
     if <<last_char>> =~ ~r/^[^\p{L}\p{N}\/-=&]$/ do
@@ -59,27 +57,24 @@ defmodule ExAutolink do
     end
   end
 
-  defp parse_brackets(<<last_char, reversed::binary>>, punctuation) do
-    # We use find_opening/2 to check if there is a matching opening bracket
+  defp parse_brackets(reversed, punctuation, opening, closing) do
+    # We use find_opening/2 to search if there is a matching opening bracket
     # earlier in the string.
-    case find_opening(reversed, last_char) do
-      {:found} -> {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
-      {:not_found} -> parse_punctuation(reversed, punctuation <> <<last_char>>)
+    case find_opening(reversed, opening, closing) do
+      {:found} -> {:ok, reverse(<<closing>> <> reversed), reverse(punctuation)}
+      {:not_found} -> parse_punctuation(reversed, punctuation <> <<closing>>)
     end
   end
 
-  defp find_opening(<<>>, _closing), do: {:not_found}
+  defp find_opening(<<>>, _opening, _closing), do: {:not_found}
 
-  defp find_opening(<<last_char, reversed::binary>>, closing) do
-    # Get the corresponding opening bracket from the map defined above.
-    opening = Map.get(@brackets, closing)
-
-    # Look for the first encountered opening bracket, without stumbling upon
-    # another closing bracket.
+  defp find_opening(<<last_char, reversed::binary>>, opening, closing) do
+    # Recursively look for the first encountered opening bracket, without
+    # stumbling upon another closing bracket.
     case last_char do
       ^opening -> {:found}
       ^closing -> {:not_found}
-      _ -> find_opening(reversed, closing)
+      _ -> find_opening(reversed, opening, closing)
     end
   end
 
