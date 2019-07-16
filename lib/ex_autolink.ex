@@ -25,8 +25,11 @@ defmodule ExAutolink do
   def link(""), do: ""
 
   def link(text) do
-    Regex.replace(~r{(https?://[^\s]+)}, text, fn x ->
-      {:ok, url_part, punctuation} = x |> String.reverse() |> parse_punctuation()
+    Regex.replace(~r{(https?://[^\s]+)}, text, fn url ->
+      {:ok, url_part, punctuation} =
+        url
+        |> reverse()
+        |> parse_punctuation()
 
       ~s(<a href="#{url_part}">#{url_part}</a>#{punctuation})
     end)
@@ -56,7 +59,7 @@ defmodule ExAutolink do
       # or ampersand, is matched. We thus assume it is punctuation.
       parse_punctuation(reversed, punctuation <> <<last_char>>)
     else
-      {:ok, String.reverse(<<last_char>> <> reversed), String.reverse(punctuation)}
+      {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
     end
   end
 
@@ -64,7 +67,7 @@ defmodule ExAutolink do
     # We use find_opening/2 to search if there is a matching opening bracket
     # earlier in the string.
     case find_opening(reversed, opening, closing) do
-      {:found} -> {:ok, String.reverse(<<closing>> <> reversed), String.reverse(punctuation)}
+      {:found} -> {:ok, reverse(<<closing>> <> reversed), reverse(punctuation)}
       {:not_found} -> parse_punctuation(reversed, punctuation <> <<closing>>)
     end
   end
@@ -80,4 +83,8 @@ defmodule ExAutolink do
       _ -> find_opening(reversed, opening, closing)
     end
   end
+
+  defp reverse(binary, result \\ <<>>)
+  defp reverse(<<>>, result), do: result
+  defp reverse(<<c::utf8, rest::binary>>, result), do: reverse(rest, <<c::utf8>> <> result)
 end
