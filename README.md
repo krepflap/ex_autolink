@@ -4,7 +4,8 @@ Basic conversion of http(s) links in text to html hyperlinks.
 
 ## Features
 
-* Convert http:// and https:// links to html hyperlinks (`<a>` tags)
+* Convert `http://` and `https://` links to html hyperlinks (`<a>` tags)
+* You can pass in entire blocks of text containing multiple links
 * Pass in any extra custom attributes you want
 * Respects punctuation in text so links don't break
 
