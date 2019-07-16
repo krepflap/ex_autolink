@@ -33,8 +33,8 @@ end
   iex> ExAutolink.link("https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)")
   "<a href=\"https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)\">https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)</a>"
 
-  iex> ExAutolink.link("https://elixir-lang.org", args: %{class: "myclass active", rel: "nofollow noreferrer"})
-  "<a href=\"https://elixir-lang.org\" class=\"myclass active\" rel=\"nofollow noreferrer\">https://elixir-lang.org</a>"
+  iex> ExAutolink.link("https://elixir-lang.org!", args: %{class: "myclass active", rel: "nofollow noreferrer"})
+  "<a href=\"https://elixir-lang.org\" class=\"myclass active\" rel=\"nofollow noreferrer\">https://elixir-lang.org</a>!"
 ```
 
 ## License
