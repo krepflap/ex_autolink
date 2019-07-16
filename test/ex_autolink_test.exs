@@ -23,6 +23,11 @@ defmodule ExAutolinkTest do
     "https://en.wikipedia.org/wiki/Sprite_{computer_graphics}"
   ]
 
+  @japanese [
+    "https://ja.wikipedia.org/wiki/メインページ",
+    "https://ja.wikipedia.org/wiki/%E3%83%A1%E3%82%A4%E3%83%B3%E3%83%9A%E3%83%BC%E3%82%B8"
+  ]
+
   describe "simple url conversions" do
     test "should work with empty string" do
       assert ExAutolink.link("") == ""
@@ -38,6 +43,10 @@ defmodule ExAutolinkTest do
 
     test "should work on urls with brackets" do
       Enum.map(@brackets, &assert_link/1)
+    end
+
+    test "should work on urls with foreign characters" do
+      Enum.map(@japanese, &assert_link/1)
     end
   end
 
@@ -56,6 +65,12 @@ defmodule ExAutolinkTest do
 
     test "should work on urls with brackets" do
       Enum.map(@brackets, fn x ->
+        assert ExAutolink.link("Check out #{x} !") == "Check out #{urlify(x)} !"
+      end)
+    end
+
+    test "should work on urls with foreign characters" do
+      Enum.map(@japanese, fn x ->
         assert ExAutolink.link("Check out #{x} !") == "Check out #{urlify(x)} !"
       end)
     end
@@ -85,6 +100,14 @@ defmodule ExAutolinkTest do
         assert ExAutolink.link("Check out #{x}, ...") == "Check out #{urlify(x)}, ..."
       end)
     end
+
+    test "should work on urls with foreign characters" do
+      Enum.map(@japanese, fn x ->
+        assert ExAutolink.link("Check out #{x}.") == "Check out #{urlify(x)}."
+        assert ExAutolink.link("Check out #{x}!") == "Check out #{urlify(x)}!"
+        assert ExAutolink.link("Check out #{x}, ...") == "Check out #{urlify(x)}, ..."
+      end)
+    end
   end
 
   describe "conversions of url in text surrounded by brackets" do
@@ -107,6 +130,15 @@ defmodule ExAutolinkTest do
     end
 
     test "should work on urls with brackets" do
+      Enum.map(@brackets, fn x ->
+        assert ExAutolink.link("Check out (#{x})") == "Check out (#{urlify(x)})"
+        assert ExAutolink.link("(Check out #{x})") == "(Check out #{urlify(x)})"
+        assert ExAutolink.link("Check out [#{x}]") == "Check out [#{urlify(x)}]"
+        assert ExAutolink.link("Check out {#{x}}") == "Check out {#{urlify(x)}}"
+      end)
+    end
+
+    test "should work on urls with foreign characters" do
       Enum.map(@brackets, fn x ->
         assert ExAutolink.link("Check out (#{x})") == "Check out (#{urlify(x)})"
         assert ExAutolink.link("(Check out #{x})") == "(Check out #{urlify(x)})"

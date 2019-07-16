@@ -23,7 +23,7 @@ defmodule ExAutolink do
 
   def link(text) do
     Regex.replace(~r{(https?://[^\s]+)}, text, fn x ->
-      {:ok, url_part, punctuation} = x |> reverse() |> parse_punctuation()
+      {:ok, url_part, punctuation} = x |> String.reverse() |> parse_punctuation()
 
       ~s(<a href="#{url_part}">#{url_part}</a>#{punctuation})
     end)
@@ -53,7 +53,7 @@ defmodule ExAutolink do
       # or ampersand, is matched. We thus assume it is punctuation.
       parse_punctuation(reversed, punctuation <> <<last_char>>)
     else
-      {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
+      {:ok, String.reverse(<<last_char>> <> reversed), String.reverse(punctuation)}
     end
   end
 
@@ -61,7 +61,7 @@ defmodule ExAutolink do
     # We use find_opening/2 to search if there is a matching opening bracket
     # earlier in the string.
     case find_opening(reversed, opening, closing) do
-      {:found} -> {:ok, reverse(<<closing>> <> reversed), reverse(punctuation)}
+      {:found} -> {:ok, String.reverse(<<closing>> <> reversed), String.reverse(punctuation)}
       {:not_found} -> parse_punctuation(reversed, punctuation <> <<closing>>)
     end
   end
@@ -76,15 +76,5 @@ defmodule ExAutolink do
       ^closing -> {:not_found}
       _ -> find_opening(reversed, opening, closing)
     end
-  end
-
-  defp reverse(<<>>), do: ""
-
-  defp reverse(binary) do
-    # This seems to be an efficient way to reverse a string.
-    # https://gist.github.com/evadne/33805e13f1d84eb2e32f0d1e1a376899
-    binary
-    |> :binary.decode_unsigned(:little)
-    |> :binary.encode_unsigned(:big)
   end
 end
