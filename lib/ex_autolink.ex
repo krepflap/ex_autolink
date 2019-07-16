@@ -6,6 +6,8 @@ defmodule ExAutolink do
   It doesn't depend on Phoenix.HTML, but can be used in conjuction with Phoenix.
   """
 
+  @brackets %{?) => ?(, ?] => ?[, ?} => ?{}
+
   @doc ~S"""
   This method is used for parsing strings or text blocks. We convert all links
   starting with http:// or https:// to HTML links.
@@ -31,10 +33,11 @@ defmodule ExAutolink do
 
   defp parse_punctuation(reversed, punctuation \\ <<>>)
 
-  defp parse_punctuation(<<?), reversed::binary>>, punctuation) do
-    case find_opening(reversed, :bracket) do
-      {:ok} -> {:ok, reverse(")" <> reversed), reverse(punctuation)}
-      {:error} -> parse_punctuation(reversed, punctuation <> ")")
+  defp parse_punctuation(<<last_char, reversed::binary>>, punctuation)
+       when last_char in [?), ?], ?}] do
+    case find_opening(reversed, last_char) do
+      {:found} -> {:ok, reverse(<<last_char>> <> reversed), reverse(punctuation)}
+      {:not_found} -> parse_punctuation(reversed, punctuation <> <<last_char>>)
     end
   end
 
@@ -46,17 +49,19 @@ defmodule ExAutolink do
     end
   end
 
-  defp find_opening(<<>>, :bracket), do: {:error}
+  defp find_opening(<<>>, _closing), do: {:not_found}
 
-  defp find_opening(<<last_char, reversed::binary>>, :bracket) do
+  defp find_opening(<<last_char, reversed::binary>>, closing) do
+    opening = Map.get(@brackets, closing)
+
     case last_char do
-      ?( -> {:ok}
-      ?) -> {:error}
-      _ -> find_opening(reversed, :bracket)
+      ^opening -> {:found}
+      ^closing -> {:not_found}
+      _ -> find_opening(reversed, closing)
     end
   end
 
-  defp reverse(""), do: ""
+  defp reverse(<<>>), do: ""
 
   defp reverse(binary) do
     binary
