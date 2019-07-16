@@ -18,6 +18,9 @@ defmodule ExAutolink do
       iex> ExAutolink.link("Go here: https://elixir-lang.org/.")
       "Go here: <a href=\"https://elixir-lang.org/\">https://elixir-lang.org/</a>."
 
+      iex> ExAutolink.link("https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)")
+      "<a href=\"https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)\">https://ja.wikipedia.org/wiki/Elixir_(プログラミング言語)</a>"
+
   """
   def link(""), do: ""
 
